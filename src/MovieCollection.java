@@ -1,8 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.*;
 
 public class MovieCollection
 {
@@ -35,7 +34,7 @@ public class MovieCollection
             System.out.println("- search (c)ast");
             System.out.println("- see all movies of a (g)enre");
             System.out.println("- list top 50 (r)ated movies");
-            System.out.println("- list top 50 (h)igest revenue movies");
+            System.out.println("- list top 50 (h)ighest revenue movies");
             System.out.println("- (q)uit");
             System.out.print("Enter choice: ");
             menuOption = scanner.nextLine();
@@ -162,9 +161,43 @@ public class MovieCollection
         System.out.println("Box office revenue: " + movie.getRevenue());
     }
 
-    private void searchCast()
-    {
+    private void searchCast() {
+        System.out.println("Enter cast member: ");
+        String searchTerm = scanner.nextLine().toLowerCase();
 
+        ArrayList<String> castResults = new ArrayList<String>();
+        ArrayList<Movie> movieResults = new ArrayList<Movie>();
+
+        for (Movie movie : movies) {
+            String movieCast = movie.getCast().toLowerCase();
+
+            if (movieCast.contains(searchTerm)) {
+                movieResults.add(movie);
+            }
+            while (movieCast.contains(searchTerm)) {
+                if (movieCast.substring(0,movieCast.indexOf("|")).contains(searchTerm)) {
+                    if (!castResults.contains(movieCast.substring(0,movieCast.indexOf("|")))) {
+                        castResults.add(movieCast.substring(0,movieCast.indexOf("|")));
+                    }
+                }
+                movieCast = movieCast.substring(movieCast.indexOf("|") + 1);
+            }
+
+            Collections.sort(castResults);
+
+            for (int i = 0; i < castResults.size(); i++) {
+                String castMember = castResults.get(i);
+
+                // this will print index 0 as choice 1 in the results list; better for user!
+                int choiceNum = i + 1;
+
+                System.out.println("" + choiceNum + ". " + castMember);
+            }
+
+            System.out.println("Which person would you like to learn more about?");
+            System.out.print("Enter number: ");
+            int choice = scanner.nextInt() - 1;
+        }
     }
 
     private void searchKeywords()
