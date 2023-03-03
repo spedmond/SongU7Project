@@ -95,7 +95,7 @@ public class MovieCollection
             String movieTitle = movies.get(i).getTitle();
             movieTitle = movieTitle.toLowerCase();
 
-            if (movieTitle.indexOf(searchTerm) != -1)
+            if (movieTitle.contains(searchTerm))
             {
                 //add the Movie object to the results list
                 results.add(movies.get(i));
@@ -163,41 +163,72 @@ public class MovieCollection
 
     private void searchCast() {
         System.out.println("Enter cast member: ");
-        String searchTerm = scanner.nextLine().toLowerCase();
+        String searchActor = scanner.nextLine().toLowerCase();
 
         ArrayList<String> castResults = new ArrayList<String>();
         ArrayList<Movie> movieResults = new ArrayList<Movie>();
 
         for (Movie movie : movies) {
-            String movieCast = movie.getCast().toLowerCase();
+            String movieCast = movie.getCast();
 
-            if (movieCast.contains(searchTerm)) {
+            if (movieCast.contains(searchActor)) {
                 movieResults.add(movie);
             }
-            while (movieCast.contains(searchTerm)) {
-                if (movieCast.substring(0,movieCast.indexOf("|")).contains(searchTerm)) {
-                    if (!castResults.contains(movieCast.substring(0,movieCast.indexOf("|")))) {
-                        castResults.add(movieCast.substring(0,movieCast.indexOf("|")));
-                    }
+
+            for (String actor : movieCast.split("\\|")) {
+                if (actor.toLowerCase().contains(searchActor) && !castResults.contains(actor)) {
+                    castResults.add(actor);
                 }
-                movieCast = movieCast.substring(movieCast.indexOf("|") + 1);
             }
-
-            Collections.sort(castResults);
-
-            for (int i = 0; i < castResults.size(); i++) {
-                String castMember = castResults.get(i);
-
-                // this will print index 0 as choice 1 in the results list; better for user!
-                int choiceNum = i + 1;
-
-                System.out.println("" + choiceNum + ". " + castMember);
-            }
-
-            System.out.println("Which person would you like to learn more about?");
-            System.out.print("Enter number: ");
-            int choice = scanner.nextInt() - 1;
         }
+
+        System.out.println(castResults);
+        Collections.sort(castResults);
+
+        for (int i = 0; i < castResults.size(); i++) {
+            String castMember = castResults.get(i);
+
+            // this will print index 0 as choice 1 in the results list; better for user!
+            int choiceNum = i + 1;
+
+            System.out.println("" + choiceNum + ". " + castMember);
+        }
+
+        System.out.println("Which person would you like to learn more about?");
+        System.out.print("Enter number: ");
+        int choice = scanner.nextInt() - 1;
+
+        ArrayList<Movie> actorInMovies = new ArrayList<Movie>();
+        for (Movie movie : movies) {
+            if (movie.getCast().contains(castResults.get(choice))) {
+                actorInMovies.add(movie);
+            }
+        }
+
+        sortResults(actorInMovies);
+
+        for (int i = 0; i < actorInMovies.size(); i++)
+        {
+            String title = actorInMovies.get(i).getTitle();
+
+            // this will print index 0 as choice 1 in the results list; better for user!
+            int choiceNum = i + 1;
+
+            System.out.println("" + choiceNum + ". " + title);
+        }
+
+        System.out.println("Which movie would you like to learn more about?");
+        System.out.print("Enter number: ");
+
+        int c = scanner.nextInt();
+        scanner.nextLine();
+
+        Movie selectedMovie = actorInMovies.get(c - 1);
+
+        displayMovieInfo(selectedMovie);
+
+        System.out.println("\n ** Press Enter to Return to Main Menu **");
+        scanner.nextLine();
     }
 
     private void searchKeywords()
@@ -253,12 +284,102 @@ public class MovieCollection
 
     private void listGenres()
     {
+        ArrayList<String> genres = new ArrayList<String>();
+        for (Movie movie : movies) {
+            for (String genre : movie.getGenres().split("\\|")) {
+                if (!genres.contains(genre)) {
+                    genres.add(genre);
+                }
+            }
+        }
+        Collections.sort(genres);
 
+        for (int i = 0; i < genres.size(); i++)
+        {
+            String genre = genres.get(i);
+
+            // this will print index 0 as choice 1 in the results list; better for user!
+            int choiceNum = i + 1;
+
+            System.out.println("" + choiceNum + ". " + genre);
+        }
+
+        System.out.println("Which genre would you like to learn more about?");
+        System.out.print("Enter number: ");
+
+        int genreChoice = scanner.nextInt();
+        scanner.nextLine();
+
+        ArrayList<Movie> moviesInGenre = new ArrayList<Movie>();
+        for (Movie movie : movies) {
+            if (movie.getGenres().contains(genres.get(genreChoice))) {
+                moviesInGenre.add(movie);
+            }
+        }
+
+        sortResults(moviesInGenre);
+
+        for (int i = 0; i < moviesInGenre.size(); i++)
+        {
+            String title = moviesInGenre.get(i).getTitle();
+
+            // this will print index 0 as choice 1 in the results list; better for user!
+            int choiceNum = i + 1;
+
+            System.out.println("" + choiceNum + ". " + title);
+        }
+
+        System.out.println("Which movie would you like to learn more about?");
+        System.out.print("Enter number: ");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        Movie selectedMovie = moviesInGenre.get(choice - 1);
+
+        displayMovieInfo(selectedMovie);
+
+        System.out.println("\n ** Press Enter to Return to Main Menu **");
+        scanner.nextLine();
     }
 
     private void listHighestRated()
     {
+        for (int i = movies.size()-1; i > 0; i--) {
+            while (movies.get(i).getUserRating()>movies.get(i-1).getUserRating()) {
+                Movie temp = movies.get(i-1);
+                movies.set(i-1,movies.get(i));
+                movies.set(i,temp);
+            }
+        }
+        Collections.reverse(movies);
+        ArrayList<Movie> topFifty = new ArrayList<Movie>();
+        for (int i = 0; i < 50; i++) {
+            topFifty.add(movies.get(i));
+        }
 
+        for (int i = 0; i < 50; i++)
+        {
+            String title = topFifty.get(i).getTitle();
+
+            // this will print index 0 as choice 1 in the results list; better for user!
+            int choiceNum = i + 1;
+
+            System.out.println("" + choiceNum + ". " + title + "(Rating: " + topFifty.get(i).getUserRating() + ")");
+        }
+
+        System.out.println("Which movie would you like to learn more about?");
+        System.out.print("Enter number: ");
+
+        int choice = scanner.nextInt();
+        scanner.nextLine();
+
+        Movie selectedMovie = topFifty.get(choice - 1);
+
+        displayMovieInfo(selectedMovie);
+
+        System.out.println("\n ** Press Enter to Return to Main Menu **");
+        scanner.nextLine();
     }
 
     private void listHighestRevenue()
